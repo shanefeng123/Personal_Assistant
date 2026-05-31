@@ -1,0 +1,16 @@
+[project]
+name = "personal-assistant"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "beautifulsoup4>=4.14.3",
+    "langchain>=0.3.30",
+    "langchain-community>=0.3.31",
+    "langchain-openai>=0.3.35",
+    "langgraph>=0.6.11",
+    "pydantic>=2.13.4",
+    "pypdf>=6.12.2",
+    "python-dotenv>=1.2.1",
+]
