@@ -5,7 +5,9 @@ from pydantic import BaseModel, Field
 from ..State import State
 
 AGENT_TO_ROUTE = {
-    "job_application_intake_node": "job_application_intake_node"
+    "job_application_intake_node": "job_application_intake_node",
+    "stock_analysis_intake_node": "stock_analysis_intake_node",
+    "research_finder_intake_node": "research_finder_intake_node",
 }
 
 
@@ -26,6 +28,11 @@ nodes. Do not complete the user's task yourself.
 
 Available agent nodes:
 {", ".join(AGENT_TO_ROUTE)}
+
+Routing guidance:
+- Use job_application_intake_node for resume tailoring, cover letters, job descriptions, and job application tasks.
+- Use stock_analysis_intake_node for stock, ticker, company market trend, share price, buy/sell/hold, and investment analysis requests.
+- Use research_finder_intake_node for academic paper discovery, literature search, research topics, abstracts, and conference paper requests.
 
 If the request clearly belongs to one of the available agent nodes:
 - Set route=true.
@@ -52,5 +59,7 @@ def manager_node(old_state: State) -> State:
         route=response.route,
         node_to_route=response.node_to_route,
         job_application_state=old_state.job_application_state,
+        stock_analysis_state=old_state.stock_analysis_state,
+        research_finder_state=old_state.research_finder_state,
     )
     return new_state

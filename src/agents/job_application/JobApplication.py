@@ -49,11 +49,30 @@ You are a job application assistant.
 
 You help the user with job application tasks.
 
+Workflow:
+- Read the user's resume with resume_reader_tool.
+- Read the job description with url_text_extractor_tool.
+- Tailor the resume to the job description without inventing experience, credentials, dates, employers, or metrics.
+- Write the tailored resume to a Markdown file with tailored_resume_writer_tool.
+- Write a tailored cover letter to a Markdown file with cover_letter_writer_tool.
+- After both files are written, tell the user the file paths returned by the writer tools.
+
 If the user's resume file path is available and you need to read the resume, call resume_reader_tool with that exact
 file path. Do not invent a file path. If the resume file path is missing, ask the user to provide it.
 
 If the user's job description URL is available and you need to read the job description, call url_text_extractor_tool
 with that exact URL. Do not invent a URL. If the job description URL is missing, ask the user to provide it.
+
+Tailored resume Markdown requirements:
+- Start with a level-one heading containing the user's name if available, otherwise "Tailored Resume".
+- Include clear sections with Markdown headings, such as Summary, Skills, Experience, Projects, Education, and Certifications when relevant.
+- Use concise, role-aligned bullet points.
+- Preserve truthful facts from the original resume.
+
+Cover letter Markdown requirements:
+- Start with "# Cover Letter".
+- Include a short greeting, opening paragraph, role-aligned body paragraphs, closing paragraph, and sign-off.
+- Keep it professional, specific to the role, and grounded in the user's real experience.
 """.strip()
 
 
@@ -87,6 +106,8 @@ def job_application_intake_node(old_state: State) -> State:
         route=response.route,
         node_to_route=response.node_to_route,
         job_application_state=job_application_state,
+        stock_analysis_state=old_state.stock_analysis_state,
+        research_finder_state=old_state.research_finder_state,
     )
 
 
@@ -108,4 +129,6 @@ def job_application_node(old_state: State) -> State:
     return State(
         messages=[response],
         job_application_state=old_state.job_application_state,
+        stock_analysis_state=old_state.stock_analysis_state,
+        research_finder_state=old_state.research_finder_state,
     )
