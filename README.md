@@ -33,6 +33,9 @@ Run the assistant with:
 uv run python main.py
 ```
 
+For Apple Mail and Apple Calendar tools, macOS may ask you to allow your terminal or Python runner to control Mail and
+Calendar the first time those tools run.
+
 ## Agents
 
 ### Manager Agent
@@ -45,6 +48,7 @@ It can currently route to:
 - Job application workflow
 - Stock analysis workflow
 - Research finder workflow
+- Email/calendar workflow
 
 ### Job Application Agent
 
@@ -91,6 +95,25 @@ It can:
 - Prefer papers from top-tier conferences when available.
 - Return paper titles, authors, venues, years, links, citation counts, and relevance notes.
 
+### Email/Calendar Agent
+
+The email/calendar workflow helps manage local email and scheduling tasks.
+
+It can:
+
+- Read unread emails from Apple Mail.
+- Search emails by sender, subject, or body text.
+- Summarize important unread emails.
+- Detect action items from email content.
+- Draft email replies without sending them.
+- Check Apple Calendar availability before scheduling.
+- Create Apple Calendar events when the user explicitly asks to schedule something.
+- Find potential unanswered sent emails older than a chosen number of days for follow-up.
+
+The workflow stores client preferences in `EmailCalendarState`, so the agent can later support other providers without
+changing the graph structure. LangChain has existing toolkit paths for Gmail and Office365/Microsoft 365, while the
+current implementation uses local macOS automation for Apple Mail and Apple Calendar.
+
 ## Project Structure
 
 ```text
@@ -104,11 +127,14 @@ src/
       StockAnalysis.py
     research_finder/
       ResearchFinder.py
+    email_calendar/
+      EmailCalendar.py
   tools/
     CommonTools.py
     JobApplicationTools.py
     StockAnalysisTools.py
     ResearchFinderTools.py
+    EmailCalendarTools.py
   routers.py
 main.py
 ```

@@ -19,6 +19,12 @@ class ResearchFinderState(BaseModel):
     field: Optional[str] = Field(default=None, description="The research field or area, if provided.")
 
 
+class EmailCalendarState(BaseModel):
+    email_client: Optional[str] = Field(default=None, description="The email client the user wants to use.")
+    calendar_client: Optional[str] = Field(default=None, description="The calendar client the user wants to use.")
+    follow_up_days: Optional[int] = Field(default=None, description="The number of days after which to follow up.")
+
+
 class State(BaseModel):
     messages: Annotated[list, add_messages] = Field(default_factory=list)
     user_input_needed: bool = Field(default=False, description="Whether the state requires user input before proceeding.")
@@ -27,3 +33,4 @@ class State(BaseModel):
     job_application_state: JobApplicationState = Field(default_factory=JobApplicationState)
     stock_analysis_state: StockAnalysisState = Field(default_factory=StockAnalysisState)
     research_finder_state: ResearchFinderState = Field(default_factory=ResearchFinderState)
+    email_calendar_state: EmailCalendarState = Field(default_factory=EmailCalendarState)

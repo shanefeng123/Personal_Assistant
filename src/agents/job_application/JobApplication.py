@@ -112,6 +112,7 @@ def job_application_intake_node(old_state: State) -> State:
         job_application_state=job_application_state,
         stock_analysis_state=old_state.stock_analysis_state,
         research_finder_state=old_state.research_finder_state,
+        email_calendar_state=old_state.email_calendar_state,
     )
 
 
@@ -135,4 +136,5 @@ def job_application_node(old_state: State) -> State:
         job_application_state=old_state.job_application_state,
         stock_analysis_state=old_state.stock_analysis_state,
         research_finder_state=old_state.research_finder_state,
+        email_calendar_state=old_state.email_calendar_state,
     )

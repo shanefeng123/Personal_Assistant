@@ -9,17 +9,20 @@ from langgraph.prebuilt import tools_condition
 from rich.console import Console
 from rich.markdown import Markdown
 
-from src.State import JobApplicationState, ResearchFinderState, State, StockAnalysisState
+from src.State import EmailCalendarState, JobApplicationState, ResearchFinderState, State, StockAnalysisState
 from src.agents.Manager import manager_node
+from src.agents.email_calendar.EmailCalendar import email_calendar_intake_node, email_calendar_node
 from src.agents.job_application.JobApplication import job_application_intake_node, job_application_node
 from src.agents.research_finder.ResearchFinder import research_finder_intake_node, research_finder_node
 from src.agents.stock_analysis.StockAnalysis import stock_analysis_intake_node, stock_analysis_node
 from src.routers import (
+    email_calendar_intake_router,
     job_application_intake_router,
     manager_router,
     research_finder_intake_router,
     stock_analysis_intake_router,
 )
+from src.tools.EmailCalendarToolNode import email_calendar_tool_node
 from src.tools.JobApplicationToolNode import job_application_tool_node
 from src.tools.ResearchFinderToolNode import research_finder_tool_node
 from src.tools.StockAnalysisToolNode import stock_analysis_tool_node
@@ -38,12 +41,16 @@ graph_builder.add_node("stock_analysis_tools", stock_analysis_tool_node)
 graph_builder.add_node("research_finder_intake_node", research_finder_intake_node)
 graph_builder.add_node("research_finder_node", research_finder_node)
 graph_builder.add_node("research_finder_tools", research_finder_tool_node)
+graph_builder.add_node("email_calendar_intake_node", email_calendar_intake_node)
+graph_builder.add_node("email_calendar_node", email_calendar_node)
+graph_builder.add_node("email_calendar_tools", email_calendar_tool_node)
 graph_builder.add_edge(START, "manager_node")
 graph_builder.add_conditional_edges("manager_node", manager_router,
                                     {
                                         "job_application_intake_node": "job_application_intake_node",
                                         "stock_analysis_intake_node": "stock_analysis_intake_node",
                                         "research_finder_intake_node": "research_finder_intake_node",
+                                        "email_calendar_intake_node": "email_calendar_intake_node",
                                         END: END,
                                     })
 graph_builder.add_conditional_edges(
@@ -79,8 +86,25 @@ graph_builder.add_conditional_edges(
     {"tools": "research_finder_tools", END: END},
 )
 graph_builder.add_edge("research_finder_tools", "research_finder_node")
-serializer = JsonPlusSerializer().with_msgpack_allowlist(
-    [JobApplicationState, StockAnalysisState, ResearchFinderState]
+graph_builder.add_conditional_edges(
+    "email_calendar_intake_node",
+    email_calendar_intake_router,
+    {"email_calendar_node": "email_calendar_node", END: END},
+)
+graph_builder.add_conditional_edges(
+    "email_calendar_node",
+    tools_condition,
+    {"tools": "email_calendar_tools", END: END},
+)
+graph_builder.add_edge("email_calendar_tools", "email_calendar_node")
+serializer = JsonPlusSerializer(
+    allowed_msgpack_modules=[
+        State,
+        JobApplicationState,
+        StockAnalysisState,
+        ResearchFinderState,
+        EmailCalendarState,
+    ]
 )
 memory = MemorySaver(serde=serializer)
 graph = graph_builder.compile(checkpointer=memory)
