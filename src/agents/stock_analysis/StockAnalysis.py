@@ -42,6 +42,8 @@ If ticker is available:
 - Set route=true.
 - Set node_to_route="stock_analysis_node".
 - Write a brief handoff message.
+
+Always format message as valid Markdown.
 """.strip()
 
 
@@ -61,6 +63,8 @@ Important:
 - Do not guarantee returns.
 - Do not invent current prices, news, or facts. Use the tools for current data.
 - If the ticker is missing, ask the user for it.
+
+All final responses to the user must be valid Markdown. Use clear headings, bullets, and links when available.
 """.strip()
 
 

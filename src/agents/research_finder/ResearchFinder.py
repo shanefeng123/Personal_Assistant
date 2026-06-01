@@ -40,6 +40,8 @@ If topics is available:
 - Set field when the user provided or strongly implied a field such as machine learning, NLP, computer vision, systems,
   security, databases, HCI, robotics, theory, or economics.
 - Write a brief handoff message.
+
+Always format message as valid Markdown.
 """.strip()
 
 
@@ -60,6 +62,8 @@ Workflow:
 - If relevant top-tier conference papers are sparse, say that clearly and include the best available alternatives.
 
 Do not invent papers, abstracts, venues, links, or publication details.
+
+All final responses to the user must be valid Markdown. Use headings, numbered paper lists, bullets, and Markdown links.
 """.strip()
 
 

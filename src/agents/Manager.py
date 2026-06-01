@@ -45,6 +45,8 @@ If the request does not contain enough information to choose a node or proceed:
 - Set user_input_needed=true.
 - Set node_to_route=null.
 - Set message to a concise question asking the user for the missing information.
+
+Always format message as valid Markdown.
 """.strip()
 
 

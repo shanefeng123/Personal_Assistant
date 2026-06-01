@@ -41,6 +41,8 @@ If both required values are available:
 - Set route=true.
 - Set node_to_route="job_application_node".
 - Write a brief handoff message.
+
+Always format message as valid Markdown.
 """.strip()
 
 
@@ -73,6 +75,8 @@ Cover letter Markdown requirements:
 - Start with "# Cover Letter".
 - Include a short greeting, opening paragraph, role-aligned body paragraphs, closing paragraph, and sign-off.
 - Keep it professional, specific to the role, and grounded in the user's real experience.
+
+All final responses to the user must be valid Markdown. Use headings, bullets, links, and code-style file paths where useful.
 """.strip()
 
 

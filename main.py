@@ -6,6 +6,8 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import tools_condition
+from rich.console import Console
+from rich.markdown import Markdown
 
 from src.State import JobApplicationState, ResearchFinderState, State, StockAnalysisState
 from src.agents.Manager import manager_node
@@ -23,6 +25,7 @@ from src.tools.ResearchFinderToolNode import research_finder_tool_node
 from src.tools.StockAnalysisToolNode import stock_analysis_tool_node
 
 DEFAULT_THREAD_ID = "default"
+console = Console()
 
 graph_builder = StateGraph(State)
 graph_builder.add_node("manager_node", manager_node)
@@ -94,11 +97,11 @@ def chat(user_input: str, thread_id: str = DEFAULT_THREAD_ID):
 
 
 def main():
-    print("Agent: Hi there! I'm your personal assistant. How can I help you today?")
+    console.print(Markdown("**Agent:** Hi there! I'm your personal assistant. How can I help you today?"))
     while True:
         user_input = input("User: ")
         response = chat(user_input)
-        print(f"Agent: {response}")
+        console.print(Markdown(f"**Agent:**\n\n{response}"))
 
 
 if __name__ == "__main__":
