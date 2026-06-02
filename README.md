@@ -8,6 +8,7 @@ The graph uses:
 - LangGraph for node orchestration, routing, tool execution, and in-memory checkpoints.
 - LangChain and OpenAI chat models for LLM reasoning and structured output.
 - Tool nodes for web extraction, file reading/writing, stock data, web search, and academic paper search.
+- A shared evaluator node for final-response guardrails before responses are shown to the user.
 - Rich terminal rendering so Markdown responses are easier to read.
 
 ## Setup
@@ -49,6 +50,21 @@ It can currently route to:
 - Stock analysis workflow
 - Research finder workflow
 - Email/calendar workflow
+
+### Evaluator Agent
+
+The evaluator is a shared final-response guardrail. It reviews specialist agent responses before they are returned to
+the user.
+
+It checks for:
+
+- Missing required information.
+- Unsupported claims or invented facts.
+- Unsafe side-effect claims, such as saying an email was sent when only drafting is allowed.
+- Domain-specific rules for job applications, stock analysis, research paper discovery, and email/calendar tasks.
+
+If a response passes, the original response is preserved exactly. If it fails, the evaluator returns a corrected
+Markdown response or asks the user for the missing information.
 
 ### Job Application Agent
 
@@ -121,6 +137,7 @@ src/
   State.py
   agents/
     Manager.py
+    Evaluator.py
     job_application/
       JobApplication.py
     stock_analysis/

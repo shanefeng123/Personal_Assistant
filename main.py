@@ -10,6 +10,7 @@ from rich.console import Console
 from rich.markdown import Markdown
 
 from src.State import EmailCalendarState, JobApplicationState, ResearchFinderState, State, StockAnalysisState
+from src.agents.Evaluator import evaluator_node
 from src.agents.Manager import manager_node
 from src.agents.email_calendar.EmailCalendar import email_calendar_intake_node, email_calendar_node
 from src.agents.job_application.JobApplication import job_application_intake_node, job_application_node
@@ -32,6 +33,7 @@ console = Console()
 
 graph_builder = StateGraph(State)
 graph_builder.add_node("manager_node", manager_node)
+graph_builder.add_node("evaluator_node", evaluator_node)
 graph_builder.add_node("job_application_intake_node", job_application_intake_node)
 graph_builder.add_node("job_application_node", job_application_node)
 graph_builder.add_node("job_application_tools", job_application_tool_node)
@@ -61,7 +63,7 @@ graph_builder.add_conditional_edges(
 graph_builder.add_conditional_edges(
     "job_application_node",
     tools_condition,
-    {"tools": "job_application_tools", END: END},
+    {"tools": "job_application_tools", END: "evaluator_node"},
 )
 graph_builder.add_edge("job_application_tools", "job_application_node")
 graph_builder.add_conditional_edges(
@@ -72,7 +74,7 @@ graph_builder.add_conditional_edges(
 graph_builder.add_conditional_edges(
     "stock_analysis_node",
     tools_condition,
-    {"tools": "stock_analysis_tools", END: END},
+    {"tools": "stock_analysis_tools", END: "evaluator_node"},
 )
 graph_builder.add_edge("stock_analysis_tools", "stock_analysis_node")
 graph_builder.add_conditional_edges(
@@ -83,7 +85,7 @@ graph_builder.add_conditional_edges(
 graph_builder.add_conditional_edges(
     "research_finder_node",
     tools_condition,
-    {"tools": "research_finder_tools", END: END},
+    {"tools": "research_finder_tools", END: "evaluator_node"},
 )
 graph_builder.add_edge("research_finder_tools", "research_finder_node")
 graph_builder.add_conditional_edges(
@@ -94,9 +96,10 @@ graph_builder.add_conditional_edges(
 graph_builder.add_conditional_edges(
     "email_calendar_node",
     tools_condition,
-    {"tools": "email_calendar_tools", END: END},
+    {"tools": "email_calendar_tools", END: "evaluator_node"},
 )
 graph_builder.add_edge("email_calendar_tools", "email_calendar_node")
+graph_builder.add_edge("evaluator_node", END)
 serializer = JsonPlusSerializer(
     allowed_msgpack_modules=[
         State,

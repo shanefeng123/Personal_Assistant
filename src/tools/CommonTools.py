@@ -1,3 +1,5 @@
+from urllib.parse import urlparse
+
 from langchain_community.document_loaders import WebBaseLoader
 from langchain_core.tools import tool
 
@@ -5,6 +7,10 @@ from langchain_core.tools import tool
 @tool
 def url_text_extractor_tool(url: str) -> str:
     """Read a web page URL and return its extracted text."""
+    parsed_url = urlparse(url)
+    if parsed_url.scheme not in {"http", "https"} or not parsed_url.netloc:
+        return f"Cannot read URL because it is not a valid http or https URL: {url}"
+
     loader = WebBaseLoader(
         web_path=url,
         requests_kwargs={"timeout": 20},

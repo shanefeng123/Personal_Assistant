@@ -58,6 +58,9 @@ def search_emails_tool(
     if _normalize_client(email_client) != "macos":
         return _unsupported_client_message(email_client, "email")
 
+    if not query.strip():
+        return "Cannot search email without a non-empty query."
+
     message_limit = _bounded_int(limit, default=10, minimum=1, maximum=50)
     mailbox_name = "sent" if mailbox.lower().strip() == "sent" else "inbox"
     script = """
@@ -123,6 +126,13 @@ def draft_email_reply_tool(
     if _normalize_client(email_client) != "macos":
         return _unsupported_client_message(email_client, "email")
 
+    if not _has_email_address(to):
+        return "Cannot create an email draft without at least one valid recipient email address."
+    if not subject.strip():
+        return "Cannot create an email draft without a subject."
+    if not body.strip():
+        return "Cannot create an email draft without a body."
+
     script = """
 on run argv
     set toText to item 1 of argv
@@ -169,6 +179,9 @@ def check_calendar_availability_tool(
     """Check calendar availability between two date-times. Prefer ISO 8601 strings with timezone."""
     if _normalize_client(calendar_client) != "macos":
         return _unsupported_client_message(calendar_client, "calendar")
+
+    if not start_datetime.strip() or not end_datetime.strip():
+        return "Cannot check availability without both a start date-time and an end date-time."
 
     script = """
 function run(argv) {
@@ -248,6 +261,11 @@ def create_calendar_event_tool(
     if _normalize_client(calendar_client) != "macos":
         return _unsupported_client_message(calendar_client, "calendar")
 
+    if not title.strip():
+        return "Cannot create a calendar event without a title."
+    if not start_datetime.strip() or not end_datetime.strip():
+        return "Cannot create a calendar event without both a start date-time and an end date-time."
+
     script = """
 function run(argv) {
     const title = argv[0];
@@ -270,6 +288,15 @@ function run(argv) {
         return "Calendar not found: " + calendarName;
     }
 
+    const conflicts = findConflicts(calendar, startDate, endDate);
+    if (conflicts.length > 0) {
+        let output = "Calendar event was not created because the requested time conflicts with existing events:\\n\\n";
+        for (const conflict of conflicts) {
+            output += "- " + conflict.title + " from " + conflict.start + " to " + conflict.end + "\\n";
+        }
+        return output;
+    }
+
     const eventProperties = {
         summary: title,
         startDate: startDate,
@@ -283,6 +310,26 @@ function run(argv) {
     const newEvent = Calendar.Event(eventProperties);
     calendar.events.push(newEvent);
     return "Calendar event created in " + calendar.name() + ": " + title + " from " + startDate.toString() + " to " + endDate.toString() + ".";
+}
+
+function findConflicts(calendar, startDate, endDate) {
+    const conflicts = [];
+    const events = calendar.events();
+    for (const event of events) {
+        try {
+            const eventStart = event.startDate();
+            const eventEnd = event.endDate();
+            if (eventStart < endDate && eventEnd > startDate) {
+                conflicts.push({
+                    title: event.summary(),
+                    start: eventStart.toString(),
+                    end: eventEnd.toString()
+                });
+            }
+        } catch (error) {
+        }
+    }
+    return conflicts;
 }
 
 function findCalendar(Calendar, calendarName) {
@@ -386,6 +433,10 @@ def _bounded_int(value: int, default: int, minimum: int, maximum: int) -> int:
         return default
 
     return max(minimum, min(maximum, bounded_value))
+
+
+def _has_email_address(value: str) -> bool:
+    return any("@" in address and "." in address for address in value.split(","))
 
 
 def _run_osascript(script: str, language: Optional[str] = None, args: Optional[list[str]] = None) -> str:
