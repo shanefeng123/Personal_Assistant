@@ -25,6 +25,16 @@ class EmailCalendarState(BaseModel):
     follow_up_days: Optional[int] = Field(default=None, description="The number of days after which to follow up.")
 
 
+class DailyBriefingState(BaseModel):
+    briefing_date: Optional[str] = Field(default=None, description="The briefing date in YYYY-MM-DD format.")
+    include_email: bool = Field(default=True, description="Whether unread emails should be included.")
+    include_calendar: bool = Field(default=True, description="Whether calendar events should be included.")
+    include_followups: bool = Field(default=True, description="Whether email follow-ups should be included.")
+    include_stocks: bool = Field(default=False, description="Whether stock watchlist information should be included.")
+    include_research: bool = Field(default=False, description="Whether research paper updates should be included.")
+    follow_up_days: Optional[int] = Field(default=None, description="The number of days after which to follow up.")
+
+
 class State(BaseModel):
     messages: Annotated[list, add_messages] = Field(default_factory=list)
     user_input_needed: bool = Field(default=False, description="Whether the state requires user input before proceeding.")
@@ -34,3 +44,4 @@ class State(BaseModel):
     stock_analysis_state: StockAnalysisState = Field(default_factory=StockAnalysisState)
     research_finder_state: ResearchFinderState = Field(default_factory=ResearchFinderState)
     email_calendar_state: EmailCalendarState = Field(default_factory=EmailCalendarState)
+    daily_briefing_state: DailyBriefingState = Field(default_factory=DailyBriefingState)

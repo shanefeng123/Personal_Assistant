@@ -101,6 +101,7 @@ def stock_analysis_intake_node(old_state: State) -> State:
         stock_analysis_state=stock_analysis_state,
         research_finder_state=old_state.research_finder_state,
         email_calendar_state=old_state.email_calendar_state,
+        daily_briefing_state=old_state.daily_briefing_state,
     )
 
 
@@ -126,4 +127,5 @@ def stock_analysis_node(old_state: State) -> State:
         stock_analysis_state=old_state.stock_analysis_state,
         research_finder_state=old_state.research_finder_state,
         email_calendar_state=old_state.email_calendar_state,
+        daily_briefing_state=old_state.daily_briefing_state,
     )

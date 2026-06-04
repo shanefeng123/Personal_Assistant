@@ -52,6 +52,11 @@ Email/calendar checks:
 - Do not create or confirm scheduling when the date, time, duration, or title is ambiguous.
 - Calendar event creation should be preceded by an availability check or protected by a tool-side conflict check.
 
+Daily briefing checks:
+- Do not invent agenda items, unread emails, follow-ups, stock updates, or research updates.
+- Do not include full private email bodies when a concise summary is enough.
+- Do not claim side effects such as drafting email or creating calendar events in a briefing.
+
 Always format message as valid Markdown.
 """.strip()
 
@@ -70,6 +75,7 @@ def evaluator_node(old_state: State) -> State:
             stock_analysis_state=old_state.stock_analysis_state,
             research_finder_state=old_state.research_finder_state,
             email_calendar_state=old_state.email_calendar_state,
+            daily_briefing_state=old_state.daily_briefing_state,
         )
 
     llm = ChatOpenAI(model="gpt-4o-mini")
@@ -84,7 +90,8 @@ def evaluator_node(old_state: State) -> State:
                     f"- Job application state: {old_state.job_application_state.model_dump()}\n"
                     f"- Stock analysis state: {old_state.stock_analysis_state.model_dump()}\n"
                     f"- Research finder state: {old_state.research_finder_state.model_dump()}\n"
-                    f"- Email/calendar state: {old_state.email_calendar_state.model_dump()}"
+                    f"- Email/calendar state: {old_state.email_calendar_state.model_dump()}\n"
+                    f"- Daily briefing state: {old_state.daily_briefing_state.model_dump()}"
                 )
             ),
             *old_state.messages,
@@ -101,6 +108,7 @@ def evaluator_node(old_state: State) -> State:
         stock_analysis_state=old_state.stock_analysis_state,
         research_finder_state=old_state.research_finder_state,
         email_calendar_state=old_state.email_calendar_state,
+        daily_briefing_state=old_state.daily_briefing_state,
     )
 
 

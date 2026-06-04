@@ -69,6 +69,7 @@ Capabilities:
 Workflow guidance:
 - Use read_unread_emails_tool before summarizing unread emails or extracting action items from unread emails.
 - Use search_emails_tool when the user refers to a specific sender, subject, thread, or email context.
+- Use read_calendar_events_tool when the user asks what is on their calendar for a date.
 - Use draft_email_reply_tool for reply drafts. Do not claim an email was sent.
 - Use check_calendar_availability_tool before calling create_calendar_event_tool.
 - Use create_calendar_event_tool only when the user explicitly asks you to schedule or create an event and the event
@@ -117,6 +118,7 @@ def email_calendar_intake_node(old_state: State) -> State:
         stock_analysis_state=old_state.stock_analysis_state,
         research_finder_state=old_state.research_finder_state,
         email_calendar_state=email_calendar_state,
+        daily_briefing_state=old_state.daily_briefing_state,
     )
 
 
@@ -144,4 +146,5 @@ def email_calendar_node(old_state: State) -> State:
         stock_analysis_state=old_state.stock_analysis_state,
         research_finder_state=old_state.research_finder_state,
         email_calendar_state=old_state.email_calendar_state,
+        daily_briefing_state=old_state.daily_briefing_state,
     )

@@ -9,20 +9,30 @@ from langgraph.prebuilt import tools_condition
 from rich.console import Console
 from rich.markdown import Markdown
 
-from src.State import EmailCalendarState, JobApplicationState, ResearchFinderState, State, StockAnalysisState
+from src.State import (
+    DailyBriefingState,
+    EmailCalendarState,
+    JobApplicationState,
+    ResearchFinderState,
+    State,
+    StockAnalysisState,
+)
 from src.agents.Evaluator import evaluator_node
 from src.agents.Manager import manager_node
+from src.agents.daily_briefing.DailyBriefing import daily_briefing_intake_node, daily_briefing_node
 from src.agents.email_calendar.EmailCalendar import email_calendar_intake_node, email_calendar_node
 from src.agents.job_application.JobApplication import job_application_intake_node, job_application_node
 from src.agents.research_finder.ResearchFinder import research_finder_intake_node, research_finder_node
 from src.agents.stock_analysis.StockAnalysis import stock_analysis_intake_node, stock_analysis_node
 from src.routers import (
+    daily_briefing_intake_router,
     email_calendar_intake_router,
     job_application_intake_router,
     manager_router,
     research_finder_intake_router,
     stock_analysis_intake_router,
 )
+from src.tools.DailyBriefingToolNode import daily_briefing_tool_node
 from src.tools.EmailCalendarToolNode import email_calendar_tool_node
 from src.tools.JobApplicationToolNode import job_application_tool_node
 from src.tools.ResearchFinderToolNode import research_finder_tool_node
@@ -46,6 +56,9 @@ graph_builder.add_node("research_finder_tools", research_finder_tool_node)
 graph_builder.add_node("email_calendar_intake_node", email_calendar_intake_node)
 graph_builder.add_node("email_calendar_node", email_calendar_node)
 graph_builder.add_node("email_calendar_tools", email_calendar_tool_node)
+graph_builder.add_node("daily_briefing_intake_node", daily_briefing_intake_node)
+graph_builder.add_node("daily_briefing_node", daily_briefing_node)
+graph_builder.add_node("daily_briefing_tools", daily_briefing_tool_node)
 graph_builder.add_edge(START, "manager_node")
 graph_builder.add_conditional_edges("manager_node", manager_router,
                                     {
@@ -53,6 +66,7 @@ graph_builder.add_conditional_edges("manager_node", manager_router,
                                         "stock_analysis_intake_node": "stock_analysis_intake_node",
                                         "research_finder_intake_node": "research_finder_intake_node",
                                         "email_calendar_intake_node": "email_calendar_intake_node",
+                                        "daily_briefing_intake_node": "daily_briefing_intake_node",
                                         END: END,
                                     })
 graph_builder.add_conditional_edges(
@@ -99,6 +113,17 @@ graph_builder.add_conditional_edges(
     {"tools": "email_calendar_tools", END: "evaluator_node"},
 )
 graph_builder.add_edge("email_calendar_tools", "email_calendar_node")
+graph_builder.add_conditional_edges(
+    "daily_briefing_intake_node",
+    daily_briefing_intake_router,
+    {"daily_briefing_node": "daily_briefing_node", END: END},
+)
+graph_builder.add_conditional_edges(
+    "daily_briefing_node",
+    tools_condition,
+    {"tools": "daily_briefing_tools", END: "evaluator_node"},
+)
+graph_builder.add_edge("daily_briefing_tools", "daily_briefing_node")
 graph_builder.add_edge("evaluator_node", END)
 serializer = JsonPlusSerializer(
     allowed_msgpack_modules=[
@@ -107,6 +132,7 @@ serializer = JsonPlusSerializer(
         StockAnalysisState,
         ResearchFinderState,
         EmailCalendarState,
+        DailyBriefingState,
     ]
 )
 memory = MemorySaver(serde=serializer)

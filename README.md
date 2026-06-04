@@ -7,7 +7,8 @@ The graph uses:
 
 - LangGraph for node orchestration, routing, tool execution, and in-memory checkpoints.
 - LangChain and OpenAI chat models for LLM reasoning and structured output.
-- Tool nodes for web extraction, file reading/writing, stock data, web search, and academic paper search.
+- Tool nodes for web extraction, file reading/writing, stock data, web search, academic paper search, email, calendar,
+  and daily briefing assembly.
 - A shared evaluator node for final-response guardrails before responses are shown to the user.
 - Rich terminal rendering so Markdown responses are easier to read.
 
@@ -50,6 +51,7 @@ It can currently route to:
 - Stock analysis workflow
 - Research finder workflow
 - Email/calendar workflow
+- Daily briefing workflow
 
 ### Evaluator Agent
 
@@ -130,6 +132,23 @@ The workflow stores client preferences in `EmailCalendarState`, so the agent can
 changing the graph structure. LangChain has existing toolkit paths for Gmail and Office365/Microsoft 365, while the
 current implementation uses local macOS automation for Apple Mail and Apple Calendar.
 
+### Daily Briefing Agent
+
+The daily briefing workflow creates a concise briefing for today or another requested date.
+
+It can:
+
+- Extract briefing preferences during intake, such as date and which sections to include.
+- Read Apple Calendar events for the requested date.
+- Summarize important unread Apple Mail emails.
+- Find potential unanswered sent emails for follow-up.
+- Include stock updates when a saved ticker is available and the user asks for market information.
+- Include research paper updates when saved research topics are available and the user asks for research information.
+- Produce a structured Markdown briefing with agenda, email highlights, action items, and follow-ups.
+
+The default briefing includes calendar, unread email, and follow-up sections. Stock and research sections are opt-in
+because they require saved context such as a ticker or research topic.
+
 ## Project Structure
 
 ```text
@@ -146,12 +165,15 @@ src/
       ResearchFinder.py
     email_calendar/
       EmailCalendar.py
+    daily_briefing/
+      DailyBriefing.py
   tools/
     CommonTools.py
     JobApplicationTools.py
     StockAnalysisTools.py
     ResearchFinderTools.py
     EmailCalendarTools.py
+    DailyBriefingToolNode.py
   routers.py
 main.py
 ```

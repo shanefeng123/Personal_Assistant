@@ -248,6 +248,105 @@ function findCalendar(Calendar, calendarName) {
 
 
 @tool
+def read_calendar_events_tool(
+    briefing_date: str,
+    calendar_client: str = "macos",
+    calendar_name: Optional[str] = None,
+) -> str:
+    """Read calendar events for a date. Use briefing_date as YYYY-MM-DD."""
+    if _normalize_client(calendar_client) != "macos":
+        return _unsupported_client_message(calendar_client, "calendar")
+
+    if not briefing_date.strip():
+        return "Cannot read calendar events without a date. Use YYYY-MM-DD."
+
+    script = """
+function run(argv) {
+    const requestedDate = argv[0];
+    const calendarName = argv[1];
+    const bounds = dayBounds(requestedDate);
+    if (!bounds) {
+        return "Invalid date input. Use YYYY-MM-DD, for example 2026-06-04.";
+    }
+
+    const Calendar = Application("Calendar");
+    const calendar = findCalendar(Calendar, calendarName);
+    if (!calendar) {
+        return "Calendar not found: " + calendarName;
+    }
+
+    const matches = [];
+    const events = calendar.events();
+    for (const event of events) {
+        try {
+            const eventStart = event.startDate();
+            const eventEnd = event.endDate();
+            if (eventStart < bounds.end && eventEnd > bounds.start) {
+                matches.push({
+                    title: event.summary(),
+                    start: eventStart.toString(),
+                    end: eventEnd.toString(),
+                    location: event.location()
+                });
+            }
+        } catch (error) {
+        }
+    }
+
+    if (matches.length === 0) {
+        return "No calendar events found for " + requestedDate + ".";
+    }
+
+    matches.sort((a, b) => new Date(a.start) - new Date(b.start));
+    let output = "Calendar events for " + requestedDate + ":\\n\\n";
+    for (const match of matches) {
+        output += "- " + match.title + " from " + match.start + " to " + match.end;
+        if (match.location) {
+            output += " at " + match.location;
+        }
+        output += "\\n";
+    }
+    return output;
+}
+
+function dayBounds(value) {
+    const dateOnly = /^(\\d{4})-(\\d{2})-(\\d{2})$/.exec(value);
+    if (dateOnly) {
+        const start = new Date(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]));
+        const end = new Date(start);
+        end.setDate(start.getDate() + 1);
+        return {start: start, end: end};
+    }
+
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+        return null;
+    }
+
+    const start = new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+    const end = new Date(start);
+    end.setDate(start.getDate() + 1);
+    return {start: start, end: end};
+}
+
+function findCalendar(Calendar, calendarName) {
+    const calendars = Calendar.calendars();
+    if (!calendarName) {
+        return calendars[0];
+    }
+
+    for (const calendar of calendars) {
+        if (calendar.name() === calendarName) {
+            return calendar;
+        }
+    }
+    return null;
+}
+""".strip()
+    return _run_osascript(script, language="JavaScript", args=[briefing_date, calendar_name or ""])
+
+
+@tool
 def create_calendar_event_tool(
     title: str,
     start_datetime: str,

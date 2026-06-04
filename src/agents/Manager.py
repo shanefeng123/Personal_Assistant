@@ -9,6 +9,7 @@ AGENT_TO_ROUTE = {
     "stock_analysis_intake_node": "stock_analysis_intake_node",
     "research_finder_intake_node": "research_finder_intake_node",
     "email_calendar_intake_node": "email_calendar_intake_node",
+    "daily_briefing_intake_node": "daily_briefing_intake_node",
 }
 
 
@@ -36,6 +37,8 @@ Routing guidance:
 - Use research_finder_intake_node for academic paper discovery, literature search, research topics, abstracts, and conference paper requests.
 - Use email_calendar_intake_node for email reading, unread email summaries, email action items, draft replies,
   calendar scheduling, availability checks, calendar event creation, and unanswered email follow-ups.
+- Use daily_briefing_intake_node for daily briefings, morning briefings, summaries of today's agenda, email/calendar
+  digests, and combined overviews of calendar, unread emails, follow-ups, stocks, or research.
 
 If the request clearly belongs to one of the available agent nodes:
 - Set route=true.
@@ -67,5 +70,6 @@ def manager_node(old_state: State) -> State:
         stock_analysis_state=old_state.stock_analysis_state,
         research_finder_state=old_state.research_finder_state,
         email_calendar_state=old_state.email_calendar_state,
+        daily_briefing_state=old_state.daily_briefing_state,
     )
     return new_state
