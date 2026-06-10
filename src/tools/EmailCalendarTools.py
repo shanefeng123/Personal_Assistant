@@ -121,8 +121,9 @@ def draft_email_reply_tool(
     body: str,
     email_client: str = "macos",
     cc: Optional[str] = None,
+    confirmed: bool = False,
 ) -> str:
-    """Create a draft email reply. This tool drafts only; it does not send email."""
+    """Create a draft email reply after explicit user confirmation. This tool drafts only; it does not send email."""
     if _normalize_client(email_client) != "macos":
         return _unsupported_client_message(email_client, "email")
 
@@ -132,6 +133,14 @@ def draft_email_reply_tool(
         return "Cannot create an email draft without a subject."
     if not body.strip():
         return "Cannot create an email draft without a body."
+
+    if not confirmed:
+        return (
+            "Confirmation required before creating an email draft. No draft was created.\n\n"
+            f"To: {to}\n"
+            f"Subject: {subject}\n\n"
+            "Ask the user to confirm before calling this tool again with confirmed=True."
+        )
 
     script = """
 on run argv
@@ -355,8 +364,9 @@ def create_calendar_event_tool(
     notes: str = "",
     location: str = "",
     calendar_name: Optional[str] = None,
+    confirmed: bool = False,
 ) -> str:
-    """Create a calendar event. Prefer ISO 8601 date-times with timezone."""
+    """Create a calendar event after explicit user confirmation. Prefer ISO 8601 date-times with timezone."""
     if _normalize_client(calendar_client) != "macos":
         return _unsupported_client_message(calendar_client, "calendar")
 
@@ -364,6 +374,16 @@ def create_calendar_event_tool(
         return "Cannot create a calendar event without a title."
     if not start_datetime.strip() or not end_datetime.strip():
         return "Cannot create a calendar event without both a start date-time and an end date-time."
+
+    if not confirmed:
+        return (
+            "Confirmation required before creating a calendar event. No event was created.\n\n"
+            f"Title: {title}\n"
+            f"Start: {start_datetime}\n"
+            f"End: {end_datetime}\n"
+            f"Location: {location or 'not provided'}\n\n"
+            "Ask the user to confirm before calling this tool again with confirmed=True."
+        )
 
     script = """
 function run(argv) {

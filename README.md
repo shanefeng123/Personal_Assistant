@@ -64,6 +64,7 @@ It checks for:
 - Unsupported claims or invented facts.
 - Unsafe side-effect claims, such as saying an email was sent when only drafting is allowed.
 - Domain-specific rules for job applications, stock analysis, research paper discovery, and email/calendar tasks.
+- Confirmation requirements for sensitive actions such as email draft creation and calendar event creation.
 
 If a response passes, the original response is preserved exactly. If it fails, the evaluator returns a corrected
 Markdown response or asks the user for the missing information.
@@ -123,14 +124,18 @@ It can:
 - Search emails by sender, subject, or body text.
 - Summarize important unread emails.
 - Detect action items from email content.
-- Draft email replies without sending them.
+- Draft email replies only after explicit user confirmation, without sending them.
 - Check Apple Calendar availability before scheduling.
-- Create Apple Calendar events when the user explicitly asks to schedule something.
+- Create Apple Calendar events only after explicit user confirmation.
 - Find potential unanswered sent emails older than a chosen number of days for follow-up.
 
 The workflow stores client preferences in `EmailCalendarState`, so the agent can later support other providers without
 changing the graph structure. LangChain has existing toolkit paths for Gmail and Office365/Microsoft 365, while the
 current implementation uses local macOS automation for Apple Mail and Apple Calendar.
+
+Sensitive email/calendar actions are guarded at the tool boundary. The draft-email and create-calendar-event tools
+refuse to perform side effects unless they are called with `confirmed=True`, and the agent prompt instructs the model to
+use that flag only after the user explicitly confirms the details.
 
 ### Daily Briefing Agent
 
@@ -148,6 +153,20 @@ It can:
 
 The default briefing includes calendar, unread email, and follow-up sections. Stock and research sections are opt-in
 because they require saved context such as a ticker or research topic.
+
+## Security Considerations
+
+The project is designed around controlled tool use and workflow-specific context isolation:
+
+- The manager routes requests to specialist workflows instead of giving every agent every tool.
+- Each workflow has its own nested state object so resume paths, tickers, research topics, email settings, and briefing
+  preferences do not overwrite each other.
+- Intake nodes use structured outputs to extract only the fields each workflow needs.
+- Tool nodes are separated by workflow, limiting which tools each specialist agent can call.
+- Sensitive actions require human confirmation before side effects happen.
+- The evaluator reviews final responses for unsupported claims, invented tool results, unsafe side-effect claims, and
+  domain-specific rules.
+- Checkpoint serialization explicitly allowlists the custom state classes used by the graph.
 
 ## Project Structure
 
